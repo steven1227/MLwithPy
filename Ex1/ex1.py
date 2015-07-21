@@ -70,4 +70,4 @@ fig = pyplot.figure()
 pyplot.contourf(R,P,J_vals.T,np.logspace(-2,3,20))
 pyplot.show(block=True)
 
-
+print
