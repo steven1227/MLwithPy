@@ -1,4 +1,5 @@
 import os
+from numpy.ma import log
 
 from scipy import special, optimize
 
@@ -24,12 +25,12 @@ def hypothesis(x, theta):
 
 
 def findMinTheta(theta, x, y):
-    result = optimize.fmin(computecost, x0=theta, args=(x, y), maxiter=400, full_output=True)
+    result = optimize.fmin(computeCost, x0=theta, args=(x, y), maxiter=400, full_output=True)
     return result[0], result[1]
 
 
 def computecost(theta, X, Y):
-    cost_func = -Y * np.log(hypothesis(X, theta)) - (1 - Y) * np.log(1 - hypothesis(X, theta))
+    cost_func = -Y * log(hypothesis(X, theta)) - (1 - Y) * log(1 - hypothesis(X, theta))
     cost = (np.sum(cost_func) / m).flatten()
     return cost
 
