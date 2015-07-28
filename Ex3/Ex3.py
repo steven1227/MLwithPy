@@ -35,7 +35,7 @@ def gradientCost(theta, x, y, lamda):
     return cost / m
 
 
-def displayData(X, theta=None):
+def displayData(X, theta1=None,theta2=None):
     width = 20
     rows, cols = 10, 10
     out = zeros((width * rows, width * cols))
@@ -52,12 +52,12 @@ def displayData(X, theta=None):
     axes = figure.add_subplot(111)
     axes.imshow(img)
 
-    if theta is not None:
+    if theta1 is not None and theta2 is not None:
         result_matrix = []
         X_biased = c_[ones(shape(X)[0]), X]
 
         for idx in rand_indices:
-            result = (argmax(theta.T.dot(X_biased[idx])) + 1) % 10
+            result = (argmax(theta1.T.dot(X_biased[idx])) + 1) % 10
             result_matrix.append(result)
 
         result_matrix = array(result_matrix).reshape(rows, cols).transpose()
