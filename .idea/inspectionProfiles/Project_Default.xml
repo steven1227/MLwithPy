@@ -6,6 +6,8 @@
       <option name="ignoredIdentifiers">
         <list>
           <option value="Ex2.ex2_2.type" />
+          <option value="Ex6.ex6_1.math" />
+          <option value="Ex6.ex6_1.exp" />
         </list>
       </option>
     </inspection_tool>

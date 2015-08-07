@@ -41,7 +41,8 @@ def displayData(X, theta=None):
         result_matrix = array(result_matrix).reshape(rows, cols).transpose()
         print result_matrix
 
-    pyplot.show()
+    pass
+    # pyplot.show()
 
 
 def paramUnroll(nn_params, input_layer_size, hidden_layer_size,
@@ -58,6 +59,17 @@ def paramUnroll(nn_params, input_layer_size, hidden_layer_size,
 
 def sigmoid(z):
     return scipy.special.expit(z)
+
+
+def sigmoidGradient(z):
+    sig = sigmoid(z)
+    return sig * (1 - sig)
+
+
+def randInitializeWeights(L_in, L_out):
+    e = 0.12
+    w = random.random((L_out, L_in + 1)) * 2 * e - e
+    return w
 
 
 def recodeLabel(y, k):
@@ -88,11 +100,24 @@ def computeCost(nn_params, input_layer_size, hidden_layer_size, num_labels, X, y
         yk = recodeLabel(y, num_labels)
         assert shape(yk) == shape(a3), "Error, shape of recoded y is different from a3"
     print theta1.shape, theta2.shape
-    term1 		= -yk * log( a3 )
-    term2 		= (1 - yk) * log( 1 - a3 )
-    left_term 	= sum(term1 - term2) / m
-    right_term 	= sum(theta1[:,1:] ** 2) + sum(theta2[:,1:] ** 2)
-    return left_term + right_term * lamda / (2 * m)
+    term1 = -yk * log(a3)
+    term2 = (1 - yk) * log(1 - a3)
+    left_term = sum(term1 - term2) / m
+    right_term = sum(theta1[:, 1:] ** 2) + sum(theta2[:, 1:] ** 2)
+
+    sigma3 = a3 - yk
+    sigma2 = theta2.T.dot(sigma3) * sigmoidGradient(r_[ones((1, m)), z2])
+    sigma2 = sigma2[1:,:]
+
+    accum1 = sigma2.dot( a1.T ) / m
+    accum2 = sigma3.dot( a2.T ) / m
+
+    accum1[:,1:] = accum1[:,1:] + (theta1[:,1:] * lamda / m)
+    accum2[:,1:] = accum2[:,1:] + (theta2[:,1:] * lamda / m)
+    accum = array([accum1.T.reshape(-1).tolist() + accum2.T.reshape(-1).tolist()]).T
+    temp= ndarray.flatten(accum)
+    print temp.shape, accum.shape
+    return left_term + right_term * lamda / (2 * m),ndarray.flatten(accum)
 
 
 mat = scipy.io.loadmat(os.path.dirname(os.path.realpath(__file__)) + '/ex4data1.mat')
@@ -105,11 +130,12 @@ num_labels = 10
 lamda = 1
 displayData(X)
 
-# a = array([[10, 20], [30, 40]])
-# b = array([[1, 2], [3, 4]])
+a = array([[10, 20], [30, 40]])
+b = array([[1, 2], [3, 4]])
 # print r_[a.flatten(), b.flatten()]
 params = r_[theta1.T.flatten(), theta2.T.flatten()]
 print theta1.shape, theta2.shape
 # print X.shape
 print params.shape
 print computeCost(params, input_layer_size, hidden_layer_size, num_labels, X, Y, lamda)
+
