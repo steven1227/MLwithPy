@@ -13,7 +13,8 @@ with open(os.getcwd() + "/emailSample1.txt", 'r') as infile:
 
 stemmer = nltk.stem.porter.PorterStemmer()
 
-def processemail(email_contents,vocallist):
+
+def processemail(email_contents, vocallist):
     word_indices = []
     email_contents = email_contents.lower()
     email_contents = re.sub('<[^<>]+>', ' ', email_contents)
@@ -23,7 +24,7 @@ def processemail(email_contents,vocallist):
     email_contents = re.sub('[$]+', 'dollar', email_contents)
     tokens = re.split('[ ' + re.escape("@$/#.-:&*+=[]?!(){},'\">_<;%") + ']', email_contents)
     for token in tokens:
-        token = re.sub( '[^a-zA-Z0-9]', '', token)
+        token = re.sub('[^a-zA-Z0-9]', '', token)
         token = stemmer.stem(token.strip())
         if len(token) == 0:
             continue
@@ -31,8 +32,9 @@ def processemail(email_contents,vocallist):
             word_indices.append(vocalist[token])
     return word_indices
 
+
 def getemail_feature(indice):
-    features = np.zeros((data.size,1))
+    features = np.zeros((data.size, 1))
     for i in indice:
         features[i, 0] = 1
     return features
@@ -47,9 +49,20 @@ with open(os.getcwd() + "/vocab.txt", 'r') as infile:
         temp2 = temp.rstrip('\n').split('\t')
         vocalist[temp2[1]] = temp2[0]
 
-word_indices = processemail( sample, vocalist )
+word_indices = processemail(sample, vocalist)
 email_feature = getemail_feature(word_indices)
 
-mat = scipy.io.loadmat( os.path.dirname(os.path.realpath(__file__))+"/spamTrain.mat" )
+mat = scipy.io.loadmat(os.path.dirname(os.path.realpath(__file__)) + "/spamTrain.mat")
 X, y = mat['X'], mat['y']
-linear_svm = pickle.load( open("linear_svm.svm", "rb") )
+linear_svm = svm.SVC(C=0.2, kernel='linear')
+linear_svm.fit(X, y.ravel())
+
+predictions = linear_svm.predict(X)
+predictions = predictions.reshape(np.shape(predictions)[0], 1)
+print (predictions == y).mean()
+
+mat = scipy.io.loadmat(os.path.dirname(os.path.realpath(__file__)) + "/spamTest.mat")
+X, y = mat['Xtest'], mat['ytest']
+tests = linear_svm.predict(X)
+tests = tests.reshape(np.shape(tests)[0],1)
+print (tests == y).mean()
